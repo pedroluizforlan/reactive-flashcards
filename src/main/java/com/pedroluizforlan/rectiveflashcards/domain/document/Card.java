@@ -1,4 +1,4 @@
-package com.pedroluizforlan.rectiveflashcards.document;
+package com.pedroluizforlan.rectiveflashcards.domain.document;
 
 import lombok.Builder;
 
