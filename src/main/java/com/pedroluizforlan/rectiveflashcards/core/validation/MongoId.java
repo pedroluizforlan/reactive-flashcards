@@ -14,7 +14,7 @@ import static java.lang.annotation.ElementType.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {MonoIdValidator.class})
 public @interface MongoId {
-    String message() default "{.com.pedroluizforlan.reactiveflashcards.MongoId.message}";
+    String message() default "{com.pedroluizforlan.reactiveflashcards.MongoId.message}";
 
     Class<?>[] groups() default { };
 
