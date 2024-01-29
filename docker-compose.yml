@@ -11,16 +11,16 @@ services:
     environment:
       GRADLE_USER_HOME: /box
     volumes:
-      - .:/reactive-flashcards
+      - .:/rective-flashcards
       - box:/box
     depends_on:
       - db
   db:
     image: mongo:5.0.9
     environment:
-      MONGO_INITDB_ROOT_USERNAME: reactive-flashcards
+      MONGO_INITDB_ROOT_USERNAME: rective-flashcards
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INIT_DATABASE: reactive-flashcards
+      MONGO_INIT_DATABASE: rective-flashcards
     ports:
       - "27017:27017"
   box:

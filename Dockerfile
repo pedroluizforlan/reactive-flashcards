@@ -1,8 +1,8 @@
 FROM gradle:7.4.2-jdk17
 
-RUN apt-get update && apt-get install -qq -y --no-recommends
+RUN apt-get update && apt-get install -qq -y --no-install-recommends
 
-ENV INSTALL_PATH / reactive-flashcards
+ENV INSTALL_PATH /rective-flashcards
 
 RUN mkdir $INSTALL_PATH
 
