@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.ReactiveFlashCardsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.GENERIC_EXCEPTION;
 
 @Slf4j
+@Component
 public class ReactiveFlashCardsExceptionHandler extends AbstractHandlerException<ReactiveFlashCardsException> {
 
     public ReactiveFlashCardsExceptionHandler(final ObjectMapper objectMapper) {

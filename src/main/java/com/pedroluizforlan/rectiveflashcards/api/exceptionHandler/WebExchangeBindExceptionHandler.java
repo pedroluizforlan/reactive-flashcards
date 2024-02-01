@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.GENERIC_BAD_REQUEST;
 
 @Slf4j
+@Component
 public class WebExchangeBindExceptionHandler extends AbstractHandlerException<WebExchangeBindException> {
 
     private final MessageSource messageSource;

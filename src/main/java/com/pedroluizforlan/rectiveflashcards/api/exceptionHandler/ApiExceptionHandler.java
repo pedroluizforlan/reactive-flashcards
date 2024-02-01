@@ -35,22 +35,27 @@ import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMe
 @Slf4j
 @AllArgsConstructor
 public class ApiExceptionHandler implements WebExceptionHandler {
-
-    private final ObjectMapper objectMapper;
-    private final MessageSource messageSource;
-
+    private final MethodNotAllowHandler methodNotAllowHandler;
+    private final NotFoundHandler notFoundHandler;
+    private final ConstraintViolationExceptionHandler constraintViolationExceptionHandler;
+    private final WebExchangeBindExceptionHandler webExchangeBindExceptionHandler;
+    private final ResponseStatusExceptionHandler responseStatusExceptionHandler;
+    private final ReactiveFlashCardsExceptionHandler reactiveFlashCardsExceptionHandler;
+    private final GenericHandler genericHandler;
+    private final JsonProcessingExceptionHandler jsonProcessingExceptionHandler;
     @Override
+
     public Mono<Void> handle(final ServerWebExchange exchange, Throwable ex) {
         return Mono
                 .error(ex)
-                .onErrorResume(MethodNotAllowedException.class, e-> new MethodNotAllowHandler(objectMapper).handlerException(exchange,e))
-                .onErrorResume(NotFoundException.class,e -> new NotFoundHandler(objectMapper).handlerException(exchange,e))
-                .onErrorResume(ConstraintViolationException.class, e-> new ConstraintViolationExceptionHandler(objectMapper).handlerException(exchange,e))
-                .onErrorResume(WebExchangeBindException.class,e -> new WebExchangeBindExceptionHandler(objectMapper, messageSource).handlerException(exchange, e))
-                .onErrorResume(ResponseStatusException.class, e -> new ResponseStatusExceptionHandler(objectMapper).handlerException(exchange, e))
-                .onErrorResume(ReactiveFlashCardsException.class, e-> new ReactiveFlashCardsExceptionHandler(objectMapper).handlerException(exchange, e))
-                .onErrorResume(Exception.class, e-> new GenericHandler(objectMapper).handlerException(exchange, e))
-                .onErrorResume(JsonProcessingException.class, e-> new JsonProcessingExceptionHandler(objectMapper).handlerException(exchange, e))
+                .onErrorResume(MethodNotAllowedException.class, e-> methodNotAllowHandler.handlerException(exchange,e))
+                .onErrorResume(NotFoundException.class,e -> notFoundHandler.handlerException(exchange,e))
+                .onErrorResume(ConstraintViolationException.class, e-> constraintViolationExceptionHandler.handlerException(exchange,e))
+                .onErrorResume(WebExchangeBindException.class,e -> webExchangeBindExceptionHandler.handlerException(exchange, e))
+                .onErrorResume(ResponseStatusException.class, e -> responseStatusExceptionHandler.handlerException(exchange, e))
+                .onErrorResume(ReactiveFlashCardsException.class, e-> reactiveFlashCardsExceptionHandler.handlerException(exchange, e))
+                .onErrorResume(Exception.class, e-> genericHandler.handlerException(exchange, e))
+                .onErrorResume(JsonProcessingException.class, e-> jsonProcessingExceptionHandler.handlerException(exchange, e))
                 .then();
     }
 

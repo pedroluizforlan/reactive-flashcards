@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.GENERIC_BAD_REQUEST;
 
 @Slf4j
+@Component
 public class ConstraintViolationExceptionHandler extends AbstractHandlerException<ConstraintViolationException> {
 
     public ConstraintViolationExceptionHandler(final ObjectMapper objectMapper) {
