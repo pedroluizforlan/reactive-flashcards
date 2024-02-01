@@ -23,7 +23,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PatchMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<UserResponse> save(@Valid @RequestBody final UserRequest userRequest){
         return userService.save(userMapper.toDocument(userRequest))
