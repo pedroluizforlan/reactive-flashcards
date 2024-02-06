@@ -9,13 +9,14 @@ import com.pedroluizforlan.rectiveflashcards.domain.service.query.UserQueryServi
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Validated
@@ -29,7 +30,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(CREATED)
     public Mono<UserResponse> save(@Valid @RequestBody final UserRequest userRequest){
         return userService.save(userMapper.toDocument(userRequest))
                 .doFirst(()->log.info("==== Saving a user with follow data {}", userRequest))
