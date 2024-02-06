@@ -2,6 +2,7 @@ package com.pedroluizforlan.rectiveflashcards.api.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.ErrorFieldResponse;
+
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.ProblemResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class ConstraintViolationExceptionHandler extends AbstractHandlerExceptio
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange, final ConstraintViolationException ex) {
+    Mono<Void> handlerException(final ServerWebExchange exchange, final ConstraintViolationException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.BAD_REQUEST);
                     return GENERIC_BAD_REQUEST.getMessage();

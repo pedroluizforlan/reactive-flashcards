@@ -22,13 +22,13 @@ public class WebExchangeBindExceptionHandler extends AbstractHandlerException<We
 
     private final MessageSource messageSource;
 
-    public WebExchangeBindExceptionHandler(final ObjectMapper objectMapper, final MessageSource messageSource) {
+    public WebExchangeBindExceptionHandler(ObjectMapper objectMapper, MessageSource messageSource) {
         super(objectMapper);
         this.messageSource = messageSource;
     }
 
     @Override
-    Mono<Void> handlerException(final ServerWebExchange exchange,final WebExchangeBindException ex) {
+    Mono<Void> handlerException(ServerWebExchange exchange, WebExchangeBindException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.BAD_REQUEST);
                     return GENERIC_BAD_REQUEST.getMessage();

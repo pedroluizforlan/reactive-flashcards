@@ -12,12 +12,12 @@ import reactor.core.publisher.Mono;
 @Component
 public class NotFoundHandler extends AbstractHandlerException<NotFoundException>{
 
-    public NotFoundHandler(final ObjectMapper objectMapper) {
+    public NotFoundHandler(ObjectMapper objectMapper) {
         super(objectMapper);
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange,final NotFoundException ex) {
+    Mono<Void> handlerException(ServerWebExchange exchange, NotFoundException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.NOT_FOUND);
                     return ex.getMessage();

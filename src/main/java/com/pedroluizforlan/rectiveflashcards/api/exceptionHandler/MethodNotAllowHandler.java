@@ -14,12 +14,12 @@ import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMe
 @Component
 public class MethodNotAllowHandler extends AbstractHandlerException<MethodNotAllowedException>{
 
-    public MethodNotAllowHandler(final ObjectMapper objectMapper) {
+    public MethodNotAllowHandler(ObjectMapper objectMapper) {
         super(objectMapper);
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange, final MethodNotAllowedException ex) {
+    Mono<Void> handlerException(ServerWebExchange exchange,MethodNotAllowedException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.METHOD_NOT_ALLOWED);
                     return GENERIC_METHOD_NOT_ALLOW.params(exchange.getRequest().getMethod().name()).getMessage();

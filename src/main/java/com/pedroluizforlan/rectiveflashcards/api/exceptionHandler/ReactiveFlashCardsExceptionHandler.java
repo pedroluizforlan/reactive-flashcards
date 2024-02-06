@@ -14,12 +14,12 @@ import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMe
 @Component
 public class ReactiveFlashCardsExceptionHandler extends AbstractHandlerException<ReactiveFlashCardsException> {
 
-    public ReactiveFlashCardsExceptionHandler(final ObjectMapper objectMapper) {
+    public ReactiveFlashCardsExceptionHandler(ObjectMapper objectMapper) {
         super(objectMapper);
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange, final ReactiveFlashCardsException ex) {
+    public Mono<Void> handlerException(ServerWebExchange exchange, ReactiveFlashCardsException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.INTERNAL_SERVER_ERROR);
                     return GENERIC_EXCEPTION.getMessage();

@@ -14,12 +14,12 @@ import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMe
 @Component
 public class JsonProcessingExceptionHandler extends AbstractHandlerException<JsonProcessingException> {
 
-    public JsonProcessingExceptionHandler(final ObjectMapper objectMapper) {
+    public JsonProcessingExceptionHandler(ObjectMapper objectMapper) {
         super(objectMapper);
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange, final JsonProcessingException ex) {
+    Mono<Void> handlerException(ServerWebExchange exchange,JsonProcessingException ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.METHOD_NOT_ALLOWED);
                     return GENERIC_METHOD_NOT_ALLOW.getMessage();

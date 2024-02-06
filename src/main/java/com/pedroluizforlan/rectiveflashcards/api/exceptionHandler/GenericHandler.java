@@ -17,7 +17,7 @@ public class GenericHandler extends AbstractHandlerException<Exception>{
     }
 
     @Override
-    public Mono<Void> handlerException(final ServerWebExchange exchange, final Exception ex) {
+    Mono<Void> handlerException(final ServerWebExchange exchange, final Exception ex) {
         return Mono.fromCallable(() -> {
                     prepareExchange(exchange, HttpStatus.INTERNAL_SERVER_ERROR);
                     return GENERIC_EXCEPTION.getMessage();

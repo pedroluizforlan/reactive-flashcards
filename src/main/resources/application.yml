@@ -1,6 +1,8 @@
 spring:
   webflux:
     base-path: /rective-flashcards
+  main:
+    allow-bean-definition-overriding: true
   data:
     mongodb:
       uri: mongodb://rective-flashcards:root@db:27017/rective-flashcards?authSource=admin

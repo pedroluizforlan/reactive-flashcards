@@ -2,7 +2,9 @@ package com.pedroluizforlan.rectiveflashcards.api.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.ProblemResponse;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,7 +13,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 
-@RequiredArgsConstructor
+
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractHandlerException<T extends Exception> {
 
     private final ObjectMapper objectMapper;
