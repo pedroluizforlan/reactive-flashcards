@@ -19,7 +19,7 @@ public class MonoIdValidator implements ConstraintValidator<MongoId, String> {
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        log.info("==== checking if {} is a valid mongoDB id", value);
+        log.info("==== Checking if {} is a valid mongoDB id", value);
         return StringUtils.isNotBlank(value) && ObjectId.isValid(value);
     }
 }

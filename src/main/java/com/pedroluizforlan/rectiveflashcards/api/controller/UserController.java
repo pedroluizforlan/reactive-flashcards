@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 
-
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Validated
@@ -50,6 +50,12 @@ public class UserController {
         return userService.update(userMapper.toDocument(userRequest, id))
                 .doFirst(() -> log.info("==== Updating a user with follow info [body: {}, id: {}]", userRequest, id))
                 .map(userMapper::toResponse);
+    }
 
+    @DeleteMapping(value = "{id}")
+    @ResponseStatus(NO_CONTENT)
+    public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{userController.id") final String id){
+        return userService.delete(id)
+                .doFirst(() -> log.info("Deleting a user with follow id {}", id));
     }
 }
