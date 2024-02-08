@@ -1,6 +1,7 @@
 package com.pedroluizforlan.rectiveflashcards.api.exceptionHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pedroluizforlan.rectiveflashcards.domain.exception.EmailAlreadyInUsedException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.ReactiveFlashCardsException;
 import jakarta.validation.ConstraintViolationException;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class ApiExceptionHandler implements WebExceptionHandler {
 
+    private final EmailAlreadyInUsedHandler emailAlreadyInUsedHandler;
     private final MethodNotAllowHandler methodNotAllowHandler;
     private final NotFoundHandler notFoundHandler;
     private final ConstraintViolationExceptionHandler constraintViolationExceptionHandler;
@@ -34,6 +36,7 @@ public class ApiExceptionHandler implements WebExceptionHandler {
     public Mono<Void> handle(final ServerWebExchange exchange,final Throwable ex) {
         return Mono
                 .error(ex)
+                .onErrorResume(EmailAlreadyInUsedException.class, e -> emailAlreadyInUsedHandler.handlerException(exchange,e))
                 .onErrorResume(MethodNotAllowedException.class, e-> methodNotAllowHandler.handlerException(exchange,e))
                 .onErrorResume(NotFoundException.class,e -> notFoundHandler.handlerException(exchange,e))
                 .onErrorResume(ConstraintViolationException.class, e-> constraintViolationExceptionHandler.handlerException(exchange,e))
