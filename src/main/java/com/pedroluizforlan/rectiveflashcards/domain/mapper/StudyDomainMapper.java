@@ -16,7 +16,7 @@ public interface StudyDomainMapper {
 
    StudyCard toStudyCards(final Card cards);
 
-   default Question generateRandomQuestion(Set<StudyCard> cards ){
+   default Question generateRandomQuestion(final Set<StudyCard> cards ){
       var values = new ArrayList<>(cards);
       var random = new Random();
       var position = random.nextInt(values.size());
@@ -24,9 +24,9 @@ public interface StudyDomainMapper {
    }
 
    @Mapping(target = "asked", source = "front")
-   @Mapping(target = "askedIn", expression = "java(java.time.OffsetDateTime.now())")
+   //@Mapping(target = "askedIn", expression = "java(java.time.OffsetDateTime.now())")
    @Mapping(target = "answered", ignore = true)
-   @Mapping(target = "answeredIn", ignore = true)
+   //@Mapping(target = "answeredIn", ignore = true)
    @Mapping(target = "expected", source = "back")
    Question toQuestion(final StudyCard studyCard);
 }

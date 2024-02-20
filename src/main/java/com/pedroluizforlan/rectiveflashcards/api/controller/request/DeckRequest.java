@@ -16,12 +16,12 @@ public record DeckRequest(@JsonProperty("name")
                           @JsonProperty("description")
                           @NotBlank
                           @Size(min = 1, max = 255)
-                          String descripton,
+                          String description,
                           @Valid
                           @Size(min = 3)
                           @NotNull
                           @JsonProperty("cards")
-                          Set<CardRequest> cardRequestSet) {
+                          Set<CardRequest> cards) {
 
     @Builder(toBuilder = true)
     public DeckRequest { }

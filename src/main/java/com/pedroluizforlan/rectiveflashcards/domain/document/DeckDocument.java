@@ -16,10 +16,12 @@ public record DeckDocument(@Id
                            String name,
                            String description,
                            Set<Card> cards,
-                           @CreatedDate @Field("created_at")
+                           @CreatedDate
+                           @Field("created_at")
                            OffsetDateTime createdAt,
-                           @LastModifiedDate @Field("updated_at")
+                           @LastModifiedDate
+                           @Field("updated_at")
                            OffsetDateTime updatedAt) {
     @Builder(toBuilder = true)
-    public DeckDocument{}
+    public DeckDocument{ }
 }
