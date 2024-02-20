@@ -30,6 +30,7 @@ public class UserQueryService {
         return userRepository.findByEmail(email)
                 .doFirst(()->log.info("==== Try to find user with email {}", email))
                 .filter(Objects::nonNull)
-                .switchIfEmpty(Mono.defer(()-> Mono.error(new NotFoundException(USER_NOT_FOUND.params("email", email).getMessage()))));
+                .switchIfEmpty(Mono.defer(()-> Mono.error(new NotFoundException(USER_NOT_FOUND.params("email", email).getMessage()))))
+                ;
     }
 }

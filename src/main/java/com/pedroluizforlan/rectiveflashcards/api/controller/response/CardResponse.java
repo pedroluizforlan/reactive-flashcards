@@ -1,4 +1,4 @@
-package com.pedroluizforlan.rectiveflashcards.api.controller.request;
+package com.pedroluizforlan.rectiveflashcards.api.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

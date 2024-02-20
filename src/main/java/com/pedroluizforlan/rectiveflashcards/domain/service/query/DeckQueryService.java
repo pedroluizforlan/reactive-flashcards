@@ -21,12 +21,11 @@ public class DeckQueryService {
     private final DeckRepository deckRepository;
 
     public Mono<DeckDocument> findById(final String id){
-        return deckRepository.findById(id).doFirst(()->log.info("==== Try to find user with id {}", id))
+        return deckRepository.findById(id)
+                .doFirst(()->log.info("==== Try to find user with id {}", id))
                 .filter(Objects::nonNull)
                 .switchIfEmpty(Mono.defer(
                         () -> Mono.error(
-                                new NotFoundException(DECK_NOT_FOUND.params(id).getMessage()))
-                        )
-                );
+                                new NotFoundException(DECK_NOT_FOUND.params(id).getMessage()))));
     }
 }

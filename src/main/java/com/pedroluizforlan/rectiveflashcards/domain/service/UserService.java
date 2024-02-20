@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.MissingResourceException;
 import java.util.Objects;
 
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.EMAIL_ALREADY_USED;
@@ -26,10 +27,8 @@ public class UserService  {
         return userQueryService.findByEmail(userDocument.email())
                 .doFirst(() -> log.info("==== Try to save a follow document {}", userDocument))
                 .filter(Objects::isNull)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(
-                        new EmailAlreadyInUsedException(EMAIL_ALREADY_USED
-                                .params(userDocument.email())
-                                .getMessage())
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new EmailAlreadyInUsedException(EMAIL_ALREADY_USED
+                                .params(userDocument.email()).getMessage())
                 )))
                 .onErrorResume(NotFoundException.class, e -> userRepository.save(userDocument));
     }

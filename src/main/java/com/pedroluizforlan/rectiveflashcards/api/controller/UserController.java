@@ -42,7 +42,6 @@ public class UserController {
         return userQueryService.findById(id)
                 .doFirst(() -> log.info("==== Finding a user with follow id {}", id))
                 .map(userMapper::toResponse);
-
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
