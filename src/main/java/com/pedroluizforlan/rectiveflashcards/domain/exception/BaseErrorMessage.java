@@ -27,6 +27,7 @@ public class BaseErrorMessage {
     public static final BaseErrorMessage STUDY_NOT_FOUND = new BaseErrorMessage("study.NotFound");
     public static final BaseErrorMessage STUDY_QUESTION_NOT_FOUND = new BaseErrorMessage("studyQuestion.NotFound");
 
+
     private final String key;
     private String[] params;
 

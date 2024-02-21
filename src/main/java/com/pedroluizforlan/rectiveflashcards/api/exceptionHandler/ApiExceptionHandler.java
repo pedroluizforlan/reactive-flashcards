@@ -1,6 +1,7 @@
 package com.pedroluizforlan.rectiveflashcards.api.exceptionHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pedroluizforlan.rectiveflashcards.domain.exception.DeckInStudyException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.EmailAlreadyInUsedException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.ReactiveFlashCardsException;
@@ -23,6 +24,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class ApiExceptionHandler implements WebExceptionHandler {
 
+    private final DeckInStudyHandler deckInStudyHandler;
     private final EmailAlreadyInUsedHandler emailAlreadyInUsedHandler;
     private final MethodNotAllowHandler methodNotAllowHandler;
     private final NotFoundHandler notFoundHandler;
@@ -32,10 +34,12 @@ public class ApiExceptionHandler implements WebExceptionHandler {
     private final ReactiveFlashCardsExceptionHandler reactiveFlashCardsExceptionHandler;
     private final GenericHandler genericHandler;
     private final JsonProcessingExceptionHandler jsonProcessingExceptionHandler;
+
     @Override
     public Mono<Void> handle(final ServerWebExchange exchange,final Throwable ex) {
         return Mono
                 .error(ex)
+                .onErrorResume(DeckInStudyException.class, e -> deckInStudyHandler.handlerException(exchange, e))
                 .onErrorResume(EmailAlreadyInUsedException.class, e -> emailAlreadyInUsedHandler.handlerException(exchange,e))
                 .onErrorResume(MethodNotAllowedException.class, e-> methodNotAllowHandler.handlerException(exchange,e))
                 .onErrorResume(NotFoundException.class,e -> notFoundHandler.handlerException(exchange,e))
