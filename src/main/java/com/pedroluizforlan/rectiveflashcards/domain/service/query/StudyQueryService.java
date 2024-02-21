@@ -1,16 +1,20 @@
 package com.pedroluizforlan.rectiveflashcards.domain.service.query;
 
+
+import com.pedroluizforlan.rectiveflashcards.domain.document.Question;
 import com.pedroluizforlan.rectiveflashcards.domain.document.StudyDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.repository.StudyRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.STUDY_NOT_FOUND;
+import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.*;
 
 @Service
 @Slf4j
@@ -22,6 +26,24 @@ public class StudyQueryService {
         return studyRepository.findByUserIdAndCompleteFalseAndStudyDeck_DeckId(userId,deckId)
                 .doFirst(() -> log.info("==== Trying to get pending study with userId {} and deckId {}", userId, deckId))
                 .filter(Objects::nonNull)
-                .switchIfEmpty(Mono.defer(() ->  Mono.error(new NotFoundException(STUDY_NOT_FOUND.params(userId, deckId).getMessage()))));
+                .switchIfEmpty(Mono.defer(() ->  Mono.error(new NotFoundException(STUDY_DECK_NOT_FOUND.params(userId, deckId).getMessage()))));
     }
+
+    public Mono<StudyDocument> findById(final String id){
+        return studyRepository.findById(id)
+                .doFirst(() -> log.info("==== Getting a study with id {}", id))
+                .filter(Objects::nonNull)
+                .switchIfEmpty(Mono.defer(()-> Mono.error(new NotFoundException(STUDY_NOT_FOUND.params(id).getMessage()))));
+    }
+
+    public Mono<Question> getLastPendingQuestion(final String id){
+        return findById(id)
+                .filter(studyDocument -> BooleanUtils.isFalse(studyDocument.complete()))
+                .switchIfEmpty(Mono.defer(()-> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(id).getMessage()))))
+                .flatMapMany(studyDocument -> Flux.fromIterable(studyDocument.questionList()))
+                .filter(Question::isAnswered)
+                .doFirst(()-> log.info("==== Getting a current pending question in study {}", id))
+                .single();
+    }
+
 }
