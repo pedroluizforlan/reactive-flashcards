@@ -31,10 +31,10 @@ public class StudyController {
     public Mono<QuestionResponse> start(@Valid @RequestBody final StudyRequest studyRequest){
         return studyService.start(studyMapper.toDocument(studyRequest))
                 .doFirst(() -> log.info("==== Trying to create a study with follow request {}", studyRequest))
-                .map(document -> studyMapper.toResponse(document.getLastQuestionPending(), document.id()));
+                .map(document -> studyMapper.toResponse(document.getLastPendingQuestion(), document.id()));
     }
 
-    @GetMapping(produces = APPLICATION_JSON_VALUE, value = "{id}")
+    @GetMapping(produces = APPLICATION_JSON_VALUE, value = "{id}/current_question")
     public Mono<QuestionResponse> getCurrentQuestion(@Valid @PathVariable @MongoId(message = "{studyController.id}") final String id){
         return studyQueryService.getLastPendingQuestion(id)
                 .doFirst(()-> log.info("==== Trying to get a next question on study {}", id))

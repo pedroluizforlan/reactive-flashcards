@@ -1,5 +1,7 @@
 package com.pedroluizforlan.rectiveflashcards.domain.service;
 
+import com.pedroluizforlan.rectiveflashcards.domain.document.Question;
+import com.pedroluizforlan.rectiveflashcards.domain.document.StudyCard;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.DeckInStudyException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.mapper.StudyDomainMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.DECK_IN_STUDY;
@@ -59,6 +62,26 @@ public class StudyService {
                                 .getMessage()))))
                 .onErrorResume(NotFoundException.class, e -> Mono.empty())
                 .then();
+    }
+
+    public Mono<StudyDocument> answer(final String id, final String answer){
+         studyQueryService.findById(id)
+                .flatMap(study -> studyQueryService.verifyIfFinished(study).thenReturn(study))
+                .map(study -> studyDomainMapper.answer(study, answer));
+        return Mono.just(StudyDocument.builder().build());
+    }
+
+    private Flux<String> getNotAnswered(Set<StudyCard> cards, List<Question> questionList){
+        return getCardAnswers(cards)
+                .filter(ask -> questionList.stream()
+                        .filter(Question::isCorrect)
+                        .map(Question::asked)
+                        .anyMatch(question -> question.equals(ask)));
+
+    }
+    private Flux<String> getCardAnswers(final Set<StudyCard> cards){
+        return Flux.fromIterable(cards)
+                .map(StudyCard::front);
     }
 
 }

@@ -28,6 +28,10 @@ public record Question(String asked,
         return Objects.isNull(answeredIn);
     }
 
+    public Boolean isCorrect(){
+        return isAnswered() && answered.equals(expected);
+    }
+
     @AllArgsConstructor
     @NoArgsConstructor
     public static class QuestionBuilder{
@@ -39,20 +43,16 @@ public record Question(String asked,
 
         public QuestionBuilder asked(final String asked){
             this.asked = asked;
+            this.askedIn = OffsetDateTime.now();
             return this;
         }
-        public QuestionBuilder askedIn(final OffsetDateTime askedIn){
-            this.askedIn = askedIn;
-            return this;
-        }
+
         public QuestionBuilder answered(final String answered){
             this.answered = answered;
+            this.answeredIn = OffsetDateTime.now();
             return this;
         }
-        public QuestionBuilder answeredIn(final OffsetDateTime answeredIn){
-            this.answeredIn = answeredIn;
-            return this;
-        }
+
         public QuestionBuilder expected(final String asked){
             this.expected = expected;
             return this;

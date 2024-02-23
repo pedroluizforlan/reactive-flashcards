@@ -3,6 +3,7 @@ package com.pedroluizforlan.rectiveflashcards.domain.mapper;
 import com.pedroluizforlan.rectiveflashcards.domain.document.Card;
 import com.pedroluizforlan.rectiveflashcards.domain.document.Question;
 import com.pedroluizforlan.rectiveflashcards.domain.document.StudyCard;
+import com.pedroluizforlan.rectiveflashcards.domain.document.StudyDocument;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,9 +25,18 @@ public interface StudyDomainMapper {
    }
 
    @Mapping(target = "asked", source = "front")
-   //@Mapping(target = "askedIn", expression = "java(java.time.OffsetDateTime.now())")
    @Mapping(target = "answered", ignore = true)
-   //@Mapping(target = "answeredIn", ignore = true)
+   @Mapping(target = "answeredIn", ignore = true)
    @Mapping(target = "expected", source = "back")
    Question toQuestion(final StudyCard studyCard);
+
+   default StudyDocument answer(final StudyDocument document, final String answer){
+      var currentQuestion = document.getLastPendingQuestion();
+      var questions = document.questionList();
+      var curIndexQuestion = questions.indexOf(currentQuestion);
+
+      currentQuestion = currentQuestion.toBuilder().answered(answer).build();
+      questions.set(curIndexQuestion, currentQuestion);
+      return document.toBuilder().questionList(questions).build();
+   }
 }
