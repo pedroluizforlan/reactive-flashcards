@@ -2,6 +2,8 @@ package com.pedroluizforlan.rectiveflashcards.domain.service;
 
 import com.pedroluizforlan.rectiveflashcards.domain.document.Question;
 import com.pedroluizforlan.rectiveflashcards.domain.document.StudyCard;
+import com.pedroluizforlan.rectiveflashcards.domain.dto.QuestionDTO;
+import com.pedroluizforlan.rectiveflashcards.domain.dto.StudyDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.DeckInStudyException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.mapper.StudyDomainMapper;
@@ -13,14 +15,18 @@ import com.pedroluizforlan.rectiveflashcards.domain.service.query.StudyQueryServ
 import com.pedroluizforlan.rectiveflashcards.domain.service.query.UserQueryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.DECK_IN_STUDY;
+import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMessage.STUDY_QUESTION_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -65,24 +71,54 @@ public class StudyService {
     }
 
     public Mono<StudyDocument> answer(final String id, final String answer) {
-        studyQueryService.findById(id)
+        return studyQueryService.findById(id)
                 .flatMap(studyQueryService::verifyIfFinished)
-                .map(study -> studyDomainMapper.answer(study, answer));
-        return Mono.just(StudyDocument.builder().build());
+                .map(study -> studyDomainMapper.answer(study, answer))
+                .zipWhen(this::getNextPossibilities)
+                .map(tuple -> studyDomainMapper.toDTO(tuple.getT1(), tuple.getT2()))
+                .flatMap(this::setNewQuestion)
+                .map(studyDomainMapper::toDocument)
+                .flatMap(studyRepository::save);
+
     }
 
-    private Flux<String> getNotAnswered(Set<StudyCard> cards, List<Question> questionList) {
-        return getCardAnswers(cards)
-                .filter(ask -> questionList.stream()
+    private Mono<List<String>> getNextPossibilities(final StudyDocument studyDocument) {
+        return Flux.fromIterable(studyDocument.studyDeck().cards())
+                .map(StudyCard::front)
+                .filter(asks -> studyDocument.questionList().stream()
                         .filter(Question::isCorrect)
                         .map(Question::asked)
-                        .anyMatch(question -> question.equals(ask)));
-
+                        .noneMatch(question -> question.equals(asks)))
+                .collectList()
+                .flatMap(asks -> removeLastAsk(asks, studyDocument.getLastAnsweredQuestion().asked()));
     }
 
-    private Flux<String> getCardAnswers(final Set<StudyCard> cards) {
-        return Flux.fromIterable(cards)
-                .map(StudyCard::front);
+    private Mono<List<String>> removeLastAsk(final List<String> asks, final String asked) {
+        return Mono.just(asks)
+                .filter(ask -> ask.size() == 1)
+                .switchIfEmpty(Mono.defer(() -> Mono.just(asks.stream()
+                        .filter(ask -> !ask.equals(asked))
+                        .collect(Collectors.toList()))));
     }
 
+    private Mono<StudyDTO> setNewQuestion(final StudyDTO studyDTO) {
+        return Mono.just(studyDTO.hasAnyAnswer())
+                .filter(BooleanUtils::isTrue)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(studyDTO.id()).getMessage()))))
+                .flatMap(hasAnyAnswer -> generateNextQuestion(studyDTO))
+                .map(questionDTO -> studyDTO.toBuilder().questionList(questionDTO).build())
+                .onErrorResume(NotFoundException.class, e -> Mono.just(studyDTO));
+    }
+
+    private Mono<QuestionDTO> generateNextQuestion(final StudyDTO studyDTO) {
+        return Mono.just(studyDTO
+                        .remainAsks()
+                        .get(new Random().nextInt(studyDTO.remainAsks().size())))
+                .map(ask -> studyDTO.studyDeck()
+                        .cards()
+                        .stream()
+                        .filter(card -> card.front().equals(ask))
+                        .map(studyDomainMapper::toQuestion)
+                        .findFirst().orElseThrow());
+    }
 }

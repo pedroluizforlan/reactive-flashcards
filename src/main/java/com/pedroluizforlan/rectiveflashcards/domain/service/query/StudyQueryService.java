@@ -37,10 +37,9 @@ public class StudyQueryService {
     }
 
     public Mono<StudyDocument> verifyIfFinished(final StudyDocument studyDocument) {
-        return Mono.just(studyDocument.complete())
-                .filter(BooleanUtils::isFalse)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(studyDocument.id()).getMessage()))))
-                .thenReturn(studyDocument);
+        return Mono.just(studyDocument)
+                .filter(study -> BooleanUtils.isFalse(study.complete()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(studyDocument.id()).getMessage()))));
     }
 
     public Mono<Question> getLastPendingQuestion(final String id) {

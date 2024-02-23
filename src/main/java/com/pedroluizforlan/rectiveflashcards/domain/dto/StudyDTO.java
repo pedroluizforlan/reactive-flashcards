@@ -17,7 +17,7 @@ public record StudyDTO(String id,
                        Boolean complete,
                        StudyDeckDTO studyDeck,
                        List<QuestionDTO> questionList,
-                       List<String> remainAnswers,
+                       List<String> remainAsks,
                        OffsetDateTime createdAt,
                        OffsetDateTime updatedAt) {
     public static StudyDocumentBuilder builder() {
@@ -25,11 +25,11 @@ public record StudyDTO(String id,
     }
 
     public StudyDocumentBuilder toBuilder() {
-        return new StudyDocumentBuilder(id, userId, studyDeck, questionList, remainAnswers, createdAt, updatedAt);
+        return new StudyDocumentBuilder(id, userId, studyDeck, questionList, remainAsks, createdAt, updatedAt);
     }
 
     public Boolean hasAnyAnswer() {
-        return CollectionUtils.isNotEmpty(remainAnswers);
+        return CollectionUtils.isNotEmpty(remainAsks);
 
     }
 
@@ -40,7 +40,7 @@ public record StudyDTO(String id,
         private String userId;
         private StudyDeckDTO studyDeck;
         private List<QuestionDTO> questionList = new ArrayList<>();
-        private List<String> remainAnswers;
+        private List<String> remainAsks;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
 
@@ -71,7 +71,7 @@ public record StudyDTO(String id,
         }
 
         public StudyDocumentBuilder remainAnswers(final List<String> remainAnswers) {
-            this.remainAnswers = remainAnswers;
+            this.remainAsks = remainAnswers;
             return this;
         }
 
@@ -88,7 +88,7 @@ public record StudyDTO(String id,
         public StudyDTO build() {
             var rightQuestions = questionList.stream().filter(QuestionDTO::isCorrect).toList();
             var complete = rightQuestions.size() == studyDeck.cards().size();
-            return new StudyDTO(id, userId, complete, studyDeck, questionList, remainAnswers, createdAt, updatedAt);
+            return new StudyDTO(id, userId, complete, studyDeck, questionList, remainAsks, createdAt, updatedAt);
         }
     }
 }
