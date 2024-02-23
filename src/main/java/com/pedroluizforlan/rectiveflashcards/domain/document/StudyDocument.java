@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public record StudyDocument(@Id
     }
 
     public StudyDocumentBuilder toBuilder(){
-        return new StudyDocumentBuilder(id, userId, complete, studyDeck, questionList, createdAt, updatedAt);
+        return new StudyDocumentBuilder(id, userId, studyDeck, questionList, createdAt, updatedAt);
     }
 
     public Question getLastPendingQuestion(){
@@ -43,12 +44,18 @@ public record StudyDocument(@Id
                 .orElseThrow();
     }
 
+    public Question getLastAnsweredQuestion(){
+        return questionList.stream()
+                .filter(question -> Objects.nonNull(question.answeredIn()))
+                .max(Comparator.comparing(Question::answeredIn))
+                .orElseThrow();
+    }
+
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StudyDocumentBuilder{
         private String id;
         private String userId;
-        private Boolean complete = false;
         private StudyDeck studyDeck;
         private List<Question> questionList = new ArrayList<>();
         private OffsetDateTime createdAt;
@@ -64,10 +71,6 @@ public record StudyDocument(@Id
             return this;
         }
 
-        public StudyDocumentBuilder complete(){
-            this.complete = true;
-            return this;
-        }
 
         public StudyDocumentBuilder studyDeck(final StudyDeck studyDeck) {
             this.studyDeck = studyDeck;
@@ -95,7 +98,9 @@ public record StudyDocument(@Id
         }
 
         public StudyDocument build(){
-            return new StudyDocument(id, userId, complete, studyDeck, questionList, createdAt, updatedAt);
+            var rightQuestions = questionList.stream().filter(Question::isCorrect).toList();
+            var complete = rightQuestions.size() == studyDeck.cards().size();
+            return new StudyDocument(id, userId, complete ,studyDeck, questionList, createdAt, updatedAt);
         }
     }
 }

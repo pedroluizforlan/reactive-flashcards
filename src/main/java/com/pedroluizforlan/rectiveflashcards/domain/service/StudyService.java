@@ -32,7 +32,7 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final StudyDomainMapper studyDomainMapper;
 
-    public Mono<StudyDocument> start(final StudyDocument studyDocument){
+    public Mono<StudyDocument> start(final StudyDocument studyDocument) {
         return verifyStudy(studyDocument)
                 .then(userQueryService.findById(studyDocument.userId()))
                 .flatMap(user -> deckQueryService.findById(studyDocument.studyDeck().deckId()))
@@ -45,7 +45,7 @@ public class StudyService {
                 .doOnSuccess(study -> log.info("==== A follow study was save {}", study));
     }
 
-    private Mono<StudyDocument> fillDeckStudyCards(final StudyDocument studyDocument, final Set<Card> cards){
+    private Mono<StudyDocument> fillDeckStudyCards(final StudyDocument studyDocument, final Set<Card> cards) {
         return Flux.fromIterable(cards)
                 .doFirst(() -> log.info("==== Copying cards to new study"))
                 .map(studyDomainMapper::toStudyCards)
@@ -54,7 +54,7 @@ public class StudyService {
                 .map(studyDeck -> studyDocument.toBuilder().studyDeck(studyDeck).build());
     }
 
-    private Mono<Void> verifyStudy(final StudyDocument studyDocument){
+    private Mono<Void> verifyStudy(final StudyDocument studyDocument) {
         return studyQueryService.findPendingStudyByUserIdAndDeckId(studyDocument.userId(), studyDocument.studyDeck().deckId())
                 .flatMap(study -> Mono.defer(() ->
                         Mono.error(new DeckInStudyException(DECK_IN_STUDY
@@ -64,14 +64,14 @@ public class StudyService {
                 .then();
     }
 
-    public Mono<StudyDocument> answer(final String id, final String answer){
-         studyQueryService.findById(id)
-                .flatMap(study -> studyQueryService.verifyIfFinished(study).thenReturn(study))
+    public Mono<StudyDocument> answer(final String id, final String answer) {
+        studyQueryService.findById(id)
+                .flatMap(studyQueryService::verifyIfFinished)
                 .map(study -> studyDomainMapper.answer(study, answer));
         return Mono.just(StudyDocument.builder().build());
     }
 
-    private Flux<String> getNotAnswered(Set<StudyCard> cards, List<Question> questionList){
+    private Flux<String> getNotAnswered(Set<StudyCard> cards, List<Question> questionList) {
         return getCardAnswers(cards)
                 .filter(ask -> questionList.stream()
                         .filter(Question::isCorrect)
@@ -79,7 +79,8 @@ public class StudyService {
                         .anyMatch(question -> question.equals(ask)));
 
     }
-    private Flux<String> getCardAnswers(final Set<StudyCard> cards){
+
+    private Flux<String> getCardAnswers(final Set<StudyCard> cards) {
         return Flux.fromIterable(cards)
                 .map(StudyCard::front);
     }

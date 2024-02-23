@@ -22,33 +22,33 @@ import static com.pedroluizforlan.rectiveflashcards.domain.exception.BaseErrorMe
 public class StudyQueryService {
     private final StudyRepository studyRepository;
 
-    public Mono<StudyDocument> findPendingStudyByUserIdAndDeckId(final String userId, final String deckId){
-        return studyRepository.findByUserIdAndCompleteFalseAndStudyDeck_DeckId(userId,deckId)
+    public Mono<StudyDocument> findPendingStudyByUserIdAndDeckId(final String userId, final String deckId) {
+        return studyRepository.findByUserIdAndCompleteFalseAndStudyDeck_DeckId(userId, deckId)
                 .doFirst(() -> log.info("==== Trying to get pending study with userId {} and deckId {}", userId, deckId))
                 .filter(Objects::nonNull)
-                .switchIfEmpty(Mono.defer(() ->  Mono.error(new NotFoundException(STUDY_DECK_NOT_FOUND.params(userId, deckId).getMessage()))));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_DECK_NOT_FOUND.params(userId, deckId).getMessage()))));
     }
 
-    public Mono<StudyDocument> findById(final String id){
+    public Mono<StudyDocument> findById(final String id) {
         return studyRepository.findById(id)
                 .doFirst(() -> log.info("==== Getting a study with id {}", id))
                 .filter(Objects::nonNull)
-                .switchIfEmpty(Mono.defer(()-> Mono.error(new NotFoundException(STUDY_NOT_FOUND.params(id).getMessage()))));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_NOT_FOUND.params(id).getMessage()))));
     }
 
-    public Mono<Void> verifyIfFinished(final StudyDocument studyDocument){
+    public Mono<StudyDocument> verifyIfFinished(final StudyDocument studyDocument) {
         return Mono.just(studyDocument.complete())
                 .filter(BooleanUtils::isFalse)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(studyDocument.id()).getMessage()))))
-                .then();
+                .thenReturn(studyDocument);
     }
 
-    public Mono<Question> getLastPendingQuestion(final String id){
+    public Mono<Question> getLastPendingQuestion(final String id) {
         return findById(id)
-                .flatMap(studyDocument -> verifyIfFinished(studyDocument).thenReturn(studyDocument))
+                .flatMap(this::verifyIfFinished)
                 .flatMapMany(studyDocument -> Flux.fromIterable(studyDocument.questionList()))
                 .filter(Question::isAnswered)
-                .doFirst(()-> log.info("==== Getting a current pending question in study {}", id))
+                .doFirst(() -> log.info("==== Getting a current pending question in study {}", id))
                 .single();
     }
 
