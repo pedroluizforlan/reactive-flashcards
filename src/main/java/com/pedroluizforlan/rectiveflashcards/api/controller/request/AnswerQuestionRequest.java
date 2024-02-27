@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
-public record AnsweredQuestionRequest(@JsonProperty("answered")
-                                      @Size(min = 1, max = 255)
-                                      @NotBlank
-                                      String answered) {
+public record AnswerQuestionRequest(@JsonProperty("answer")
+                                    @Size(min = 1, max = 255)
+                                    @NotBlank
+                                    String answer) {
     @Builder(toBuilder = true)
-    public AnsweredQuestionRequest { }
+    public AnswerQuestionRequest { }
 }

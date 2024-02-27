@@ -11,7 +11,7 @@ public record DeckResponse(@JsonProperty("id")
                            @JsonProperty("name")
                            String name,
                            @JsonProperty("description")
-                           String descripton,
+                           String description,
                            @JsonProperty("cards")
                            Set<CardResponse> cards) {
     @Builder(toBuilder = true)

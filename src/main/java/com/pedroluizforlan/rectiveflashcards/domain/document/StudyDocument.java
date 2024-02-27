@@ -22,7 +22,7 @@ public record StudyDocument(@Id
                         Boolean complete,
                         @Field("study_deck")
                         StudyDeck studyDeck,
-                        List<Question> questionList,
+                        List<Question> questions,
                         @CreatedDate
                         @Field("created_at")
                         OffsetDateTime createdAt,
@@ -34,18 +34,18 @@ public record StudyDocument(@Id
     }
 
     public StudyDocumentBuilder toBuilder(){
-        return new StudyDocumentBuilder(id, userId, studyDeck, questionList, createdAt, updatedAt);
+        return new StudyDocumentBuilder(id, userId, studyDeck, questions, createdAt, updatedAt);
     }
 
     public Question getLastPendingQuestion(){
-        return questionList.stream()
-                .filter(q -> Objects.isNull(q.answeredIn()))
+        return questions.stream()
+                .filter(question -> Objects.isNull(question.answeredIn()))
                 .findFirst()
                 .orElseThrow();
     }
 
-    public Question getLastAnsweredQuestion(){
-        return questionList.stream()
+    public Question getLastAnsweredQuestion(){ //VERIFICADO
+        return questions.stream()
                 .filter(question -> Objects.nonNull(question.answeredIn()))
                 .max(Comparator.comparing(Question::answeredIn))
                 .orElseThrow();
@@ -57,7 +57,7 @@ public record StudyDocument(@Id
         private String id;
         private String userId;
         private StudyDeck studyDeck;
-        private List<Question> questionList = new ArrayList<>();
+        private List<Question> questions = new ArrayList<>();
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
 
@@ -77,13 +77,13 @@ public record StudyDocument(@Id
             return this;
         }
 
-        public StudyDocumentBuilder questionList(final List<Question> question) {
-            this.questionList = question;
+        public StudyDocumentBuilder questions(final List<Question> questions) {
+            this.questions = questions;
             return this;
         }
 
-        public StudyDocumentBuilder addQuestion(final Question question){
-            this.questionList.add(question);
+        public StudyDocumentBuilder question(final Question question){
+            this.questions.add(question);
             return this;
         }
 
@@ -98,9 +98,9 @@ public record StudyDocument(@Id
         }
 
         public StudyDocument build(){
-            var rightQuestions = questionList.stream().filter(Question::isCorrect).toList();
+            var rightQuestions = questions.stream().filter(Question::isCorrect).toList();
             var complete = rightQuestions.size() == studyDeck.cards().size();
-            return new StudyDocument(id, userId, complete ,studyDeck, questionList, createdAt, updatedAt);
+            return new StudyDocument(id, userId, complete ,studyDeck, questions, createdAt, updatedAt);
         }
     }
 }

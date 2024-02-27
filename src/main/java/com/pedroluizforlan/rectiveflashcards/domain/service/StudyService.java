@@ -44,7 +44,7 @@ public class StudyService {
                 .flatMap(user -> deckQueryService.findById(studyDocument.studyDeck().deckId()))
                 .flatMap(deck -> fillDeckStudyCards(studyDocument, deck.cards()))
                 .map(study -> study.toBuilder()
-                        .addQuestion(studyDomainMapper.generateRandomQuestion(study.studyDeck().cards()))
+                        .question(studyDomainMapper.generateRandomQuestion(study.studyDeck().cards()))
                         .build())
                 .doFirst(() -> log.info("==== Generating a first random question"))
                 .flatMap(studyRepository::save)
@@ -62,30 +62,31 @@ public class StudyService {
 
     private Mono<Void> verifyStudy(final StudyDocument studyDocument) {
         return studyQueryService.findPendingStudyByUserIdAndDeckId(studyDocument.userId(), studyDocument.studyDeck().deckId())
-                .flatMap(study -> Mono.defer(() ->
-                        Mono.error(new DeckInStudyException(DECK_IN_STUDY
-                                .params(studyDocument.userId(), studyDocument.studyDeck().deckId())
-                                .getMessage()))))
+                .flatMap(study -> Mono.defer(() -> Mono.error(new DeckInStudyException(DECK_IN_STUDY
+                        .params(studyDocument.userId(), studyDocument.studyDeck().deckId())
+                        .getMessage()))))
                 .onErrorResume(NotFoundException.class, e -> Mono.empty())
                 .then();
     }
 
     public Mono<StudyDocument> answer(final String id, final String answer) {
-        return studyQueryService.findById(id)
-                .flatMap(studyQueryService::verifyIfFinished)
-                .map(study -> studyDomainMapper.answer(study, answer))
+        return studyQueryService.findById(id) //VERIFICADO
+                .flatMap(studyQueryService::verifyIfFinished) //VERIFICADO
+                .map(study -> studyDomainMapper.answer(study, answer)) // VERIFICADO
                 .zipWhen(this::getNextPossibilities)
                 .map(tuple -> studyDomainMapper.toDTO(tuple.getT1(), tuple.getT2()))
                 .flatMap(this::setNewQuestion)
                 .map(studyDomainMapper::toDocument)
-                .flatMap(studyRepository::save);
+                .flatMap(studyRepository::save)
+                .doFirst(() -> log.info("==== Saving answer and next question if have one"));
 
     }
 
     private Mono<List<String>> getNextPossibilities(final StudyDocument studyDocument) {
         return Flux.fromIterable(studyDocument.studyDeck().cards())
+                .doFirst(() -> log.info("==== Getting question not used or questions without right answers"))
                 .map(StudyCard::front)
-                .filter(asks -> studyDocument.questionList().stream()
+                .filter(asks -> studyDocument.questions().stream()
                         .filter(Question::isCorrect)
                         .map(Question::asked)
                         .noneMatch(question -> question.equals(asks)))
@@ -95,6 +96,7 @@ public class StudyService {
 
     private Mono<List<String>> removeLastAsk(final List<String> asks, final String asked) {
         return Mono.just(asks)
+                .doFirst(() -> log.info("==== Removing last asked question if it is not a last pending question in study"))
                 .filter(ask -> ask.size() == 1)
                 .switchIfEmpty(Mono.defer(() -> Mono.just(asks.stream()
                         .filter(ask -> !ask.equals(asked))
@@ -104,21 +106,23 @@ public class StudyService {
     private Mono<StudyDTO> setNewQuestion(final StudyDTO studyDTO) {
         return Mono.just(studyDTO.hasAnyAnswer())
                 .filter(BooleanUtils::isTrue)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND.params(studyDTO.id()).getMessage()))))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_QUESTION_NOT_FOUND
+                        .params(studyDTO.id())
+                        .getMessage()))))
                 .flatMap(hasAnyAnswer -> generateNextQuestion(studyDTO))
-                .map(questionDTO -> studyDTO.toBuilder().questionList(questionDTO).build())
+                .map(questionDTO -> studyDTO.toBuilder().question(questionDTO).build())
                 .onErrorResume(NotFoundException.class, e -> Mono.just(studyDTO));
     }
 
     private Mono<QuestionDTO> generateNextQuestion(final StudyDTO studyDTO) {
-        return Mono.just(studyDTO
-                        .remainAsks()
-                        .get(new Random().nextInt(studyDTO.remainAsks().size())))
+        return Mono.just(studyDTO.remainAsks().get(new Random().nextInt(studyDTO.remainAsks().size())))
+                .doFirst(() -> log.info("==== Selecting next random question"))
                 .map(ask -> studyDTO.studyDeck()
                         .cards()
                         .stream()
                         .filter(card -> card.front().equals(ask))
                         .map(studyDomainMapper::toQuestion)
-                        .findFirst().orElseThrow());
+                        .findFirst()
+                        .orElseThrow());
     }
 }

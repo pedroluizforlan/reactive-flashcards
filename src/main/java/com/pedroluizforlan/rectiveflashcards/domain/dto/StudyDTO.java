@@ -16,7 +16,7 @@ public record StudyDTO(String id,
                        String userId,
                        Boolean complete,
                        StudyDeckDTO studyDeck,
-                       List<QuestionDTO> questionList,
+                       List<QuestionDTO> questions,
                        List<String> remainAsks,
                        OffsetDateTime createdAt,
                        OffsetDateTime updatedAt) {
@@ -25,7 +25,7 @@ public record StudyDTO(String id,
     }
 
     public StudyDocumentBuilder toBuilder() {
-        return new StudyDocumentBuilder(id, userId, studyDeck, questionList, remainAsks, createdAt, updatedAt);
+        return new StudyDocumentBuilder(id, userId, studyDeck, questions, remainAsks, createdAt, updatedAt);
     }
 
     public Boolean hasAnyAnswer() {
@@ -39,8 +39,8 @@ public record StudyDTO(String id,
         private String id;
         private String userId;
         private StudyDeckDTO studyDeck;
-        private List<QuestionDTO> questionList = new ArrayList<>();
-        private List<String> remainAsks;
+        private List<QuestionDTO> questions = new ArrayList<>();
+        private List<String> remainAsks = new ArrayList<>();
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
 
@@ -60,18 +60,18 @@ public record StudyDTO(String id,
             return this;
         }
 
-        public StudyDocumentBuilder questionList(final List<QuestionDTO> question) {
-            this.questionList = question;
+        public StudyDocumentBuilder questions(final List<QuestionDTO> questions) {
+            this.questions = questions;
             return this;
         }
 
-        public StudyDocumentBuilder questionList(final QuestionDTO question) {
-            this.questionList.add(question);
+        public StudyDocumentBuilder question(final QuestionDTO question) {
+            this.questions.add(question);
             return this;
         }
 
-        public StudyDocumentBuilder remainAnswers(final List<String> remainAnswers) {
-            this.remainAsks = remainAnswers;
+        public StudyDocumentBuilder remainAsks(final List<String> remainAsks) {
+            this.remainAsks = remainAsks;
             return this;
         }
 
@@ -86,9 +86,9 @@ public record StudyDTO(String id,
         }
 
         public StudyDTO build() {
-            var rightQuestions = questionList.stream().filter(QuestionDTO::isCorrect).toList();
+            var rightQuestions = questions.stream().filter(QuestionDTO::isCorrect).toList();
             var complete = rightQuestions.size() == studyDeck.cards().size();
-            return new StudyDTO(id, userId, complete, studyDeck, questionList, remainAsks, createdAt, updatedAt);
+            return new StudyDTO(id, userId, complete, studyDeck, questions, remainAsks, createdAt, updatedAt);
         }
     }
 }

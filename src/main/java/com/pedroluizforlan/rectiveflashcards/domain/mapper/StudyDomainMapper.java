@@ -7,7 +7,6 @@ import com.pedroluizforlan.rectiveflashcards.domain.document.StudyDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.dto.QuestionDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.dto.StudyCardDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.dto.StudyDTO;
-import jakarta.validation.constraints.Size;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -31,27 +30,27 @@ public interface StudyDomainMapper {
 
     @Mapping(target = "asked", source = "front")
     @Mapping(target = "answered", ignore = true)
-    @Mapping(target = "answeredIn", ignore = true)
     @Mapping(target = "expected", source = "back")
     Question toQuestion(final StudyCard studyCard);
 
     @Mapping(target = "asked", source = "front")
     @Mapping(target = "answered", ignore = true)
-    @Mapping(target = "answeredIn", ignore = true)
     @Mapping(target = "expected", source = "back")
     QuestionDTO toQuestion(final StudyCardDTO studyCardDTO);
 
     default StudyDocument answer(final StudyDocument document, final String answer) {
-        var currentQuestion = document.getLastPendingQuestion();
-        var questions = document.questionList();
+        var currentQuestion = document.getLastPendingQuestion(); //VERIFICADO!
+        var questions = document.questions();
         var curIndexQuestion = questions.indexOf(currentQuestion);
 
         currentQuestion = currentQuestion.toBuilder().answered(answer).build();
         questions.set(curIndexQuestion, currentQuestion);
-        return document.toBuilder().questionList(questions).build();
+        return document.toBuilder().questions(questions).build();
     }
 
+    @Mapping(target = "question", ignore = true)
     StudyDocument toDocument(final StudyDTO studyDTO);
 
+    @Mapping(target = "question", ignore = true)
     StudyDTO toDTO(final StudyDocument studyDocument, final List<String> remainAsks);
 }

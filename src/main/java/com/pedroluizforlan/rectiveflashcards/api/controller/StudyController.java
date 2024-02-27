@@ -1,6 +1,8 @@
 package com.pedroluizforlan.rectiveflashcards.api.controller;
 
+import com.pedroluizforlan.rectiveflashcards.api.controller.request.AnswerQuestionRequest;
 import com.pedroluizforlan.rectiveflashcards.api.controller.request.StudyRequest;
+import com.pedroluizforlan.rectiveflashcards.api.controller.response.AnswerQuestionResponse;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.QuestionResponse;
 import com.pedroluizforlan.rectiveflashcards.api.mapper.StudyMapper;
 import com.pedroluizforlan.rectiveflashcards.core.validation.MongoId;
@@ -39,5 +41,13 @@ public class StudyController {
         return studyQueryService.getLastPendingQuestion(id)
                 .doFirst(()-> log.info("==== Trying to get a next question on study {}", id))
                 .map(question -> studyMapper.toResponse(question, id));
+    }
+
+    @PostMapping(produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE, value = "{id}/answer")
+    public Mono<AnswerQuestionResponse> answer(@Valid @PathVariable @MongoId(message = "{studyController.id}") final String id,
+                                               @Valid @RequestBody final AnswerQuestionRequest request){
+        return studyService.answer(id, request.answer())
+                .doFirst(() -> log.info("==== Trying to answer pending question in study {} with {}", id, request.answer()))
+                .map(studyDocument -> studyMapper.toResponse(studyDocument.getLastAnsweredQuestion())); //VERIFICADO!!
     }
 }
