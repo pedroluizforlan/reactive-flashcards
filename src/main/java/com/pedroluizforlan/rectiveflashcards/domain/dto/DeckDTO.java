@@ -1,7 +1,7 @@
 package com.pedroluizforlan.rectiveflashcards.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
+
 
 import java.util.List;
 
@@ -13,8 +13,4 @@ public record DeckDTO(@JsonProperty("name")
                       String author,
                       @JsonProperty("cards")
                       List<CardDTO> cards) {
-
-    @Builder(toBuilder = true)
-    public DeckDTO {
-    }
 }
