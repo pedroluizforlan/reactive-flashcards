@@ -1,4 +1,4 @@
-package com.pedroluizforlan.rectiveflashcards.helper;
+package com.pedroluizforlan.rectiveflashcards.domain.helper;
 
 import com.pedroluizforlan.rectiveflashcards.core.RetryConfig;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.RetryException;

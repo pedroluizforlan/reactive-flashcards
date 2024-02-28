@@ -2,7 +2,7 @@ package com.pedroluizforlan.rectiveflashcards.domain.service;
 
 import com.pedroluizforlan.rectiveflashcards.domain.dto.MailMessageDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.mapper.MailMapper;
-import com.pedroluizforlan.rectiveflashcards.helper.RetryHelper;
+import com.pedroluizforlan.rectiveflashcards.domain.helper.RetryHelper;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
