@@ -4,13 +4,14 @@ import com.pedroluizforlan.rectiveflashcards.domain.document.DeckDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.document.Question;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
 public record MailMessageDTO(String destination,
                              String subject,
-                             String template,
+                             String templates,
                              Map<String, Object> variables) {
 
     public static MailMessageDTOBuilder builder() {
@@ -20,7 +21,7 @@ public record MailMessageDTO(String destination,
     public static class MailMessageDTOBuilder {
         private String destination;
         private String subject;
-        private Map<String, Object> variables;
+        private Map<String, Object> variables = new HashMap<>();
 
         public MailMessageDTOBuilder destination(final String destination) {
             this.destination = destination;
@@ -51,7 +52,7 @@ public record MailMessageDTO(String destination,
         }
 
         public MailMessageDTO build() {
-            return new MailMessageDTO(destination, subject, "mail/studyResult", variables);
+            return new MailMessageDTO(destination, subject, "studyResult", variables);
         }
     }
 

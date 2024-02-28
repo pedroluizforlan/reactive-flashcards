@@ -6,6 +6,7 @@ import com.pedroluizforlan.rectiveflashcards.domain.dto.QuestionDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.dto.StudyDTO;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.DeckInStudyException;
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
+import com.pedroluizforlan.rectiveflashcards.domain.mapper.MailMapper;
 import com.pedroluizforlan.rectiveflashcards.domain.mapper.StudyDomainMapper;
 import com.pedroluizforlan.rectiveflashcards.domain.document.Card;
 import com.pedroluizforlan.rectiveflashcards.domain.document.StudyDocument;
@@ -37,6 +38,8 @@ public class StudyService {
     private final StudyQueryService studyQueryService;
     private final StudyRepository studyRepository;
     private final StudyDomainMapper studyDomainMapper;
+    private final MailService mailService;
+    private final MailMapper mailMapper;
 
     public Mono<StudyDocument> start(final StudyDocument studyDocument) {
         return verifyStudy(studyDocument)
@@ -110,8 +113,12 @@ public class StudyService {
                         .params(studyDTO.id())
                         .getMessage()))))
                 .flatMap(hasAnyAnswer -> generateNextQuestion(studyDTO))
-                .map(questionDTO -> studyDTO.toBuilder().question(questionDTO).build())
-                .onErrorResume(NotFoundException.class, e -> Mono.just(studyDTO));
+                .map(questionDTO -> studyDTO.toBuilder()
+                        .question(questionDTO)
+                        .build())
+                .onErrorResume(NotFoundException.class, e -> Mono.just(studyDTO)
+                        .onTerminateDetach()
+                        .doOnSuccess(this::notifyUser));
     }
 
     private Mono<QuestionDTO> generateNextQuestion(final StudyDTO studyDTO) {
@@ -124,5 +131,14 @@ public class StudyService {
                         .map(studyDomainMapper::toQuestion)
                         .findFirst()
                         .orElseThrow());
+    }
+
+    private void notifyUser(final StudyDTO studyDTO) {
+        userQueryService.findById(studyDTO.userId())
+                .zipWhen(userDocument -> deckQueryService.findById(studyDTO.studyDeck().deckId()))
+                .map(tuple -> mailMapper.toDTO(studyDTO, tuple.getT2(), tuple.getT1()))
+                .flatMap(mailService::send)
+                .subscribe();
+
     }
 }

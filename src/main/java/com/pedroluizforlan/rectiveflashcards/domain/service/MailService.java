@@ -52,7 +52,7 @@ public class MailService {
     private Mono<MimeMessage> buildMessage(MimeMessage mimeMessage, MailMessageDTO mailMessageDTO) {
         return Mono.fromCallable(() -> {
             var helper = new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
-            mailMapper.toMimeMessageHelper(helper, mailMessageDTO, sender, buildTemplate(mailMessageDTO.template(), mailMessageDTO.variables()));
+            mailMapper.toMimeMessageHelper(helper, mailMessageDTO, sender, buildTemplate(mailMessageDTO.templates(), mailMessageDTO.variables()));
             return mimeMessage;
         });
     }

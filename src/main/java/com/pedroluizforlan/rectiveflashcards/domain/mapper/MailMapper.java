@@ -5,6 +5,7 @@ import com.pedroluizforlan.rectiveflashcards.domain.document.DeckDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.document.StudyDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.document.UserDocument;
 import com.pedroluizforlan.rectiveflashcards.domain.dto.MailMessageDTO;
+import com.pedroluizforlan.rectiveflashcards.domain.dto.StudyDTO;
 import jakarta.mail.MessagingException;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
@@ -22,7 +23,7 @@ public interface MailMapper {
     @Mapping(target = "destination", source="user.email")
     @Mapping(target = "subject", constant = "Relatório de estudos")
     @Mapping(target = "questions", source = "study.questions")
-    MailMessageDTO toDTO(final StudyDocument study, final DeckDocument deck, final UserDocument user);
+    MailMessageDTO toDTO(final StudyDTO study, final DeckDocument deck, final UserDocument user);
 
     @Mapping(target = "to", expression = "java(new String[]{mailMessageDTO.destination()})")
     @Mapping(target = "from", source ="sender")
