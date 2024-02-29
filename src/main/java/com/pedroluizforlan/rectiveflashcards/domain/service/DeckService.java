@@ -19,8 +19,8 @@ public class DeckService {
 
     private final DeckRepository deckRepository;
     private final DeckQueryService deckQueryService;
-    //private final DeckRestQueryService deckRestQueryService;
-    //private final DeckDomainMapper deckDomainMapper;
+    private final DeckRestQueryService deckRestQueryService;
+    private final DeckDomainMapper deckDomainMapper;
 
     public Mono<DeckDocument> save(final DeckDocument document){
         return deckRepository.save(document)
@@ -43,7 +43,7 @@ public class DeckService {
                 .doFirst(() -> log.info("==== Try to delete a user with follow id {}", id));
     }
 
-    /*
+
     public Mono<Void> sync(){
         return Mono.empty()
                 .onTerminateDetach()
@@ -59,5 +59,5 @@ public class DeckService {
                 .then()
                 .subscribe();
     }
-    */
+
 }

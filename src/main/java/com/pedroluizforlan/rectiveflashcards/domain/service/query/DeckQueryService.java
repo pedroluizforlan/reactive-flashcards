@@ -22,7 +22,7 @@ public class DeckQueryService {
 
     public Mono<DeckDocument> findById(final String id){
         return deckRepository.findById(id)
-                .doFirst(()->log.info("==== Try to find user with id {}", id))
+                .doFirst(()->log.info("==== Try to find deck with id {}", id))
                 .filter(Objects::nonNull)
                 .switchIfEmpty(Mono.defer(
                         () -> Mono.error(

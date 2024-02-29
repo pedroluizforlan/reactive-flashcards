@@ -1,6 +1,7 @@
 package com.pedroluizforlan.rectiveflashcards.api.controller;
 
 import com.pedroluizforlan.rectiveflashcards.api.controller.request.DeckRequest;
+import com.pedroluizforlan.rectiveflashcards.api.controller.request.UserRequest;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.DeckResponse;
 import com.pedroluizforlan.rectiveflashcards.api.mapper.DeckMapper;
 import com.pedroluizforlan.rectiveflashcards.core.validation.MongoId;
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -33,6 +35,11 @@ public class DeckController {
                 .doFirst(()->log.info("==== Saving a deck with follow data {}", deckRequest))
                 .map(deckMapper::toResponse);
     }
+    @PostMapping(value ="sync")
+    @ResponseStatus(NO_CONTENT)
+    public Mono<Void> sync(){
+        return deckService.sync();
+    }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE, value = "{id}")
     public Mono<DeckResponse> findById(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id){
@@ -41,4 +48,18 @@ public class DeckController {
                 .map(deckMapper::toResponse);
     }
 
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
+    public Mono<DeckResponse> update(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id,
+                                     @Valid @RequestBody final DeckRequest deckRequest){
+        return deckService.update(deckMapper.toDocument(deckRequest,id))
+                .doFirst(() -> log.info("==== Updating a deck with follow info [body: {}, id: {}]", deckRequest, id))
+                .map(deckMapper::toResponse);
+    }
+
+    @DeleteMapping(value = "{id}")
+    @ResponseStatus(NO_CONTENT)
+    public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{deckController.id") final String id){
+        return deckService.delete(id)
+                .doFirst(() -> log.info("Deleting a deck with follow id {}", id));
+    }
 }
