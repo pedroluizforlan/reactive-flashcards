@@ -1,5 +1,6 @@
 package com.pedroluizforlan.rectiveflashcards.api.controller.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import org.springframework.data.domain.Sort;
 
@@ -9,10 +10,15 @@ import static com.pedroluizforlan.rectiveflashcards.api.controller.request.UserS
 import static com.pedroluizforlan.rectiveflashcards.api.controller.request.UserSortDirection.ASC;
 import static com.pedroluizforlan.rectiveflashcards.api.controller.request.UserSortDirection.DESC;
 
-public record UserPageRequest(String sentence,
+public record UserPageRequest(@JsonProperty("sentence")
+                              String sentence,
+                              @JsonProperty("page")
                               Long page,
+                              @JsonProperty("limit")
                               Integer limit,
+                              @JsonProperty("sortBy")
                               UserSortBy sortBy,
+                              @JsonProperty("sortDirection")
                               UserSortDirection sortDirection) {
 
     @Builder(toBuilder = true)
