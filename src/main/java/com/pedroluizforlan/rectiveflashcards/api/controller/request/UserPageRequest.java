@@ -1,6 +1,9 @@
 package com.pedroluizforlan.rectiveflashcards.api.controller.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import org.springframework.data.domain.Sort;
 
@@ -12,8 +15,11 @@ import static com.pedroluizforlan.rectiveflashcards.api.controller.request.UserS
 
 public record UserPageRequest(@JsonProperty("sentence")
                               String sentence,
+                              @PositiveOrZero
                               @JsonProperty("page")
                               Long page,
+                              @Min(1)
+                              @Max(50)
                               @JsonProperty("limit")
                               Integer limit,
                               @JsonProperty("sortBy")
