@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Sort;
 
 import java.util.Objects;
@@ -29,20 +30,17 @@ public record UserPageRequest(@JsonProperty("sentence")
 
     @Builder(toBuilder = true)
     public UserPageRequest {
-        if(Objects.isNull(sortBy)){
-            sortBy = NAME;
-        }
-
-        if(Objects.isNull(sortDirection)){
-            sortDirection = ASC;
-        }
+        sortBy = ObjectUtils.defaultIfNull(sortBy, NAME);
+        sortDirection = ObjectUtils.defaultIfNull(sortDirection, ASC);
+        limit = ObjectUtils.defaultIfNull(limit, 20);
+        page = ObjectUtils.defaultIfNull(page, 0L);
     }
 
-    public Long getSkip(){
-        return page > 0 ? ((page - 1)*limit) : 0;
+    public Long getSkip() {
+        return page > 0 ? ((page - 1) * limit) : 0;
     }
 
-    public Sort getSort(){
+    public Sort getSort() {
         return sortDirection.equals(DESC) ? Sort.by(sortBy.getField()).descending() : Sort.by(sortBy.getField()).ascending();
     }
 }
