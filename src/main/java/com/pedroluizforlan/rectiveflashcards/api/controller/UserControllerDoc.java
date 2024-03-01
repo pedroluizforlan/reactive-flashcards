@@ -26,11 +26,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("users")
 @Slf4j
 @AllArgsConstructor
-public class UserController {
+public class UserControllerDoc implements com.pedroluizforlan.rectiveflashcards.api.controller.documentation.UserControllerDoc {
     private final UserService userService;
     private final UserQueryService userQueryService;
     private final UserMapper userMapper;
 
+    @Override
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public Mono<UserResponse> save(@Valid @RequestBody final UserRequest userRequest) {
@@ -39,6 +40,7 @@ public class UserController {
                 .map(userMapper::toResponse);
     }
 
+    @Override
     @GetMapping(produces = APPLICATION_JSON_VALUE, value = "{id}")
     public Mono<UserResponse> findById(@PathVariable @Valid @MongoId(message = "{userController.id}") final String id) {
         return userQueryService.findById(id)
@@ -46,6 +48,7 @@ public class UserController {
                 .map(userMapper::toResponse);
     }
 
+    @Override
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public Mono<UserPageResponse> findOnDemand(@Valid final UserPageRequest userPageRequest) {
         return userQueryService.findOnDemand(userPageRequest)
@@ -53,6 +56,7 @@ public class UserController {
                 .map(page -> userMapper.toResponse(page, userPageRequest.limit()));
     }
 
+    @Override
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
     public Mono<UserResponse> update(@PathVariable @Valid @MongoId(message = "{userController.id}") final String id,
                                      @Valid @RequestBody final UserRequest userRequest) {
@@ -61,6 +65,7 @@ public class UserController {
                 .map(userMapper::toResponse);
     }
 
+    @Override
     @DeleteMapping(value = "{id}")
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{userController.id") final String id) {
