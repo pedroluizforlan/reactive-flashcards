@@ -1,6 +1,6 @@
 package com.pedroluizforlan.rectiveflashcards.api.mapper;
 
-import com.pedroluizforlan.rectiveflashcards.api.controller.request.UserPageRequest;
+
 import com.pedroluizforlan.rectiveflashcards.api.controller.request.UserRequest;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.UserPageResponse;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.UserResponse;

@@ -26,7 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("users")
 @Slf4j
 @AllArgsConstructor
-public class UserControllerDoc implements com.pedroluizforlan.rectiveflashcards.api.controller.documentation.UserControllerDoc {
+public class UserController implements com.pedroluizforlan.rectiveflashcards.api.controller.documentation.UserControllerDoc {
     private final UserService userService;
     private final UserQueryService userQueryService;
     private final UserMapper userMapper;

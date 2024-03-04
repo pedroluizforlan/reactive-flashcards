@@ -2,7 +2,6 @@ package com.pedroluizforlan.rectiveflashcards.domain.document;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pedroluizforlan.rectiveflashcards.api.controller.response.ProblemResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +20,7 @@ public abstract class AbstractHandlerException<T extends Exception> {
 
     abstract Mono<Void> handlerException(final ServerWebExchange exchange, final T ex);
 
-    protected ProblemResponse buildError(final HttpStatus status, final String errorDescription){
+    protected ProblemResponse buildError(final HttpStatus status, final String errorDescription) {
         return ProblemResponse.builder()
                 .status(status.value())
                 .errorDescription(errorDescription)
@@ -34,7 +33,7 @@ public abstract class AbstractHandlerException<T extends Exception> {
                 .writeWith(Mono.fromCallable(() -> new DefaultDataBufferFactory().wrap(objectMapper.writeValueAsBytes(problemResponse))));
     }
 
-    protected void prepareExchange(final ServerWebExchange exchange, final HttpStatus statusCode){
+    protected void prepareExchange(final ServerWebExchange exchange, final HttpStatus statusCode) {
         exchange.getResponse().setStatusCode(statusCode);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
     }
