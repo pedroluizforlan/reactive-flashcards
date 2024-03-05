@@ -50,15 +50,17 @@ dependencies {
 	testImplementation 'org.mongodb:mongodb-driver-sync'
 	testImplementation 'org.mongodb:bson'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.2'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'com.github.javafaker:javafaker:1.0.2'
 	testImplementation 'org.projectlombok:lombok'
+	testImplementation 'org.mockito:mockito-core:4.6.1'
 
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
+	jvmArgs '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005'
 	useJUnitPlatform()
 	testlogger{
 		theme 'mocha-parallel'
