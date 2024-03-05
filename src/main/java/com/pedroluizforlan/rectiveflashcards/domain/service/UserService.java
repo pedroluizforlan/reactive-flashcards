@@ -5,6 +5,7 @@ import com.pedroluizforlan.rectiveflashcards.domain.exception.EmailAlreadyInUsed
 import com.pedroluizforlan.rectiveflashcards.domain.exception.NotFoundException;
 import com.pedroluizforlan.rectiveflashcards.domain.repository.UserRepository;
 import com.pedroluizforlan.rectiveflashcards.domain.service.query.UserQueryService;
+import io.netty.resolver.dns.UnixResolverDnsServerAddressStreamProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,13 +36,13 @@ public class UserService  {
 
     public Mono<UserDocument> update(final UserDocument userDocument){
         return verifyEmail(userDocument)
-                .then(userQueryService.findById(userDocument.id())
+                .then(Mono.defer(() -> userQueryService.findById(userDocument.id())
                     .map(user -> userDocument.toBuilder()
                             .createdAt(user.createdAt())
                             .updatedAt(user.updatedAt())
                             .build())
                     .flatMap(userRepository::save)
-                    .doFirst(() -> log.info("==== Try to update a user with follow info {}", userDocument)));
+                    .doFirst(() -> log.info("==== Try to update a user with follow info {}", userDocument))));
     }
 
     public Mono<Void> delete(final String id){
@@ -52,10 +53,20 @@ public class UserService  {
 
     private Mono<Void> verifyEmail(final UserDocument userDocument){
         return userQueryService.findByEmail(userDocument.email())
-                .filter(stored -> stored.id().equals(userDocument.id()))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new EmailAlreadyInUsedException(EMAIL_ALREADY_USED
-                        .params(userDocument.email()).getMessage()))))
-                .onErrorResume(NotFoundException.class, e -> Mono.empty())
-        .then();
+                .flatMap(stored -> doVerifyEmail(stored,userDocument));
     }
+
+    private Mono<Void> doVerifyEmail(final UserDocument storedUser, final UserDocument document){
+        return Mono.just(storedUser)
+                .filter(Objects::isNull)
+                .switchIfEmpty(Mono.defer(() -> Mono.just(storedUser)
+                        .filter(stored -> stored.id().equals(document.id()))
+                        .switchIfEmpty(Mono.defer(() -> Mono.error(new EmailAlreadyInUsedException(EMAIL_ALREADY_USED
+                                .params(document.email()).getMessage()))))
+                        .onErrorResume(NotFoundException.class, e -> Mono.empty())
+
+                )).then();
+    }
+
+
 }
